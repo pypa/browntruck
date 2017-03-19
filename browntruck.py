@@ -65,7 +65,7 @@ async def news_hook(request):
     else:
         return web.json_response({
             "message": "news file was not updated",
-            "labels": labels,
+            "labels": list(labels),
             "files": [
                 {"path": f.path, "is_added_file": f.is_added_file}
                 for f in diff
