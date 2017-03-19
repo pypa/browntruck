@@ -31,6 +31,8 @@ _news_fragment_re = re.compile(
 
 NEWS_FILE_CONTEXT = "news-file/pr"
 
+HELP_URL = "https://pip.pypa.io/en/latest/development/#adding-a-news-entry"
+
 
 class InvalidSignature(Exception):
     pass
@@ -96,6 +98,7 @@ async def news_hook(request):
                 data["pull_request"]["statuses_url"],
                 data={
                     "context": NEWS_FILE_CONTEXT,
+                    "target_url": HELP_URL,
                     "state": "success",
                     "description":
                         "News files updated and/or change is trivial.",
@@ -110,6 +113,7 @@ async def news_hook(request):
                 data["pull_request"]["statuses_url"],
                 data={
                     "context": NEWS_FILE_CONTEXT,
+                    "target_url": HELP_URL,
                     "state": "failure",
                     "description":
                         "Missing either a news entry or a trivial file/label.",
