@@ -24,7 +24,7 @@ from aiohttp import web
 
 
 _news_fragment_re = re.compile(
-    r"news/[^\.]+\.(removal|feature|bugfix|doc|vendor|trivial)]"
+    r"news/[^\./]+\.(removal|feature|bugfix|doc|vendor|trivial)$"
 )
 
 
