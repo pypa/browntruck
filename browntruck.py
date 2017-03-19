@@ -69,7 +69,12 @@ async def news_hook(request):
                        if _news_fragment_re.search(f.path))):
             await gh.post(
                 data["pull_request"]["statuses_url"],
-                data={"context": NEWS_FILE_CONTEXT, "state": "success"},
+                data={
+                    "context": NEWS_FILE_CONTEXT,
+                    "state": "success",
+                    "description":
+                        "News files updated and/or change is trivial.",
+                },
             )
 
             return web.json_response({
