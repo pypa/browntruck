@@ -13,6 +13,7 @@
 import asyncio
 import io
 import json
+import os
 import re
 
 import aiohttp
@@ -42,7 +43,11 @@ async def news_hook(request):
         return web.json_response({"message": "Skipped due to action"})
 
     async with aiohttp.ClientSession() as session:
-        gh = gidgethub.aiohttp.GitHubAPI(session, "BrownTruck")
+        gh = gidgethub.aiohttp.GitHubAPI(
+            session,
+            "BrownTruck",
+            oauth_token=request.app["github_token"],
+        )
 
         # Grab our labels out of GitHub's API
         issue_data = await gh.getitem(data["pull_request"]["issue_url"])
@@ -75,8 +80,9 @@ async def news_hook(request):
         })
 
 
-def create_app(*, loop=None):
+def create_app(*, github_token, loop=None):
     app = web.Application(loop=loop)
+    app["github_token"] = github_token
     app.router.add_post("/hooks/news", news_hook)
 
     return app
@@ -84,6 +90,9 @@ def create_app(*, loop=None):
 
 def main(argv):
     loop = asyncio.get_event_loop()
-    app = create_app(loop=loop)
+    app = create_app(
+        github_token=os.environ.get("GITHUB_TOKEN"),
+        loop=loop,
+    )
 
     return app
