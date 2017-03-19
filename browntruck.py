@@ -42,7 +42,8 @@ async def news_hook(request):
     # We only care about a few different kinds of actions, the rest of them
     # are not useful to us, so we'll no-op out quickly if it is one of them.
     if (data.get("action")
-            not in {"labeled", "unlabeled", "opened", "reopened"}):
+            not in {"labeled", "unlabeled", "opened", "reopened",
+                    "synchronize"}):
         return web.json_response({"message": "Skipped due to action"})
 
     async with aiohttp.ClientSession() as session:
