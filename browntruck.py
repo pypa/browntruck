@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import asyncio
+import io
 import json
 import re
 
@@ -50,7 +51,7 @@ async def news_hook(request):
         # Grab the diff from GitHub and parse it into a diff object.
         diff_url = data["pull_request"]["diff_url"]
         async with session.get(diff_url) as resp:
-            diff = unidiff.PatchSet(await resp.text())
+            diff = unidiff.PatchSet(io.StringIO(await resp.text()))
 
     # Determine if the status check for this PR is passing or not and update the
     # status check to account for that.
