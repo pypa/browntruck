@@ -87,7 +87,7 @@ async def news_hook(request):
                     "context": NEWS_FILE_CONTEXT,
                     "state": "failure",
                     "description":
-                        "Missing either a news entry or a trivial flag.",
+                        "Missing either a news entry or a trivial file/label.",
                 },
             )
 
