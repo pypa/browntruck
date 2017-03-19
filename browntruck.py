@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import asyncio
+import hmac
 import io
 import json
 import os
@@ -31,11 +32,35 @@ _news_fragment_re = re.compile(
 NEWS_FILE_CONTEXT = "news-file/pr"
 
 
+class InvalidSignature(Exception):
+    pass
+
+
+def _verify_signature(key, signature, body):
+    digest = hmac.new(key, msg=body, digestmod="sha1").hexdigest().lower()
+    signature = f"sha1={digest}"
+
+    if not hmac.compare_digest(f"sha1={digest}", signature.lower()):
+        raise InvalidSignature
+
+
 async def news_hook(request):
     payload = await request.read()
 
     # Verify the payload against the signature
-    # TODO :verify
+    if (request.headers.get("X-Hub-Signature")
+            and request.app.get("github_payload_key")):
+        try:
+            _verify_signature(
+                request.app["github_payload_key"],
+                request.headers["X-Hub-Signature"],
+                payload,
+            )
+        except InvalidSignature:
+            return web.json_response(
+                {"message": "Invalid signature"},
+                status=400,
+            )
 
     data = json.loads(payload.decode(request.charset or "utf8"))
 
@@ -102,9 +127,10 @@ async def news_hook(request):
             })
 
 
-def create_app(*, github_token, loop=None):
+def create_app(*, github_token, github_payload_key, loop=None):
     app = web.Application(loop=loop)
     app["github_token"] = github_token
+    app["github_payload_key"] = github_payload_key
     app.router.add_post("/hooks/news", news_hook)
 
     return app
@@ -114,6 +140,7 @@ def main(argv):
     loop = asyncio.get_event_loop()
     app = create_app(
         github_token=os.environ.get("GITHUB_TOKEN"),
+        github_payload_key=os.environ.get("GITHUB_PAYLOAD_KEY"),
         loop=loop,
     )
 
