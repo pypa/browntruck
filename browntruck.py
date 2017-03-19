@@ -37,8 +37,8 @@ class InvalidSignature(Exception):
 
 
 def _verify_signature(key, signature, body):
-    digest = hmac.new(key, msg=body, digestmod="sha1").hexdigest().lower()
-    signature = f"sha1={digest}"
+    digest = hmac.new(key.encode("ascii"), msg=body, digestmod="sha1")
+    signature = f"sha1={digest.hexdigest().lower()}"
 
     if not hmac.compare_digest(f"sha1={digest}", signature.lower()):
         raise InvalidSignature
