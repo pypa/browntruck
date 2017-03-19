@@ -31,7 +31,7 @@ async def news_hook(request):
     # Verify the payload against the signature
     # TODO :verify
 
-    data = json.loads(payload.decode(request.charset))
+    data = json.loads(payload.decode(request.charset or "utf8"))
 
     # We only care about a few different kinds of actions, the rest of them
     # are not useful to us, so we'll no-op out quickly if it is one of them.
