@@ -28,6 +28,9 @@ _news_fragment_re = re.compile(
 )
 
 
+NEWS_FILE_CONTEXT = "news-file/pr"
+
+
 async def news_hook(request):
     payload = await request.read()
 
@@ -59,25 +62,38 @@ async def news_hook(request):
         async with session.get(diff_url) as resp:
             diff = unidiff.PatchSet(io.StringIO(await resp.text()))
 
-    # Determine if the status check for this PR is passing or not and update
-    # the status check to account for that.
-    if ("trivial" in labels
-            or any(f.is_added_file for f in diff
-                   if _news_fragment_re.search(f.path))):
-        # TODO: Update the status check.
+        # Determine if the status check for this PR is passing or not and
+        # update the status check to account for that.
+        if ("trivial" in labels
+                or any(f.is_added_file for f in diff
+                       if _news_fragment_re.search(f.path))):
+            await gh.post(
+                data["pull_request"]["statuses_url"],
+                data={"context": NEWS_FILE_CONTEXT, "state": "success"},
+            )
 
-        return web.json_response({
-            "message": "news file updated and/or ignored",
-        })
-    else:
-        return web.json_response({
-            "message": "news file was not updated",
-            "labels": list(labels),
-            "files": [
-                {"path": f.path, "is_added_file": f.is_added_file}
-                for f in diff
-            ],
-        })
+            return web.json_response({
+                "message": "news file updated and/or ignored",
+            })
+        else:
+            await gh.post(
+                data["pull_request"]["statuses_url"],
+                data={
+                    "context": NEWS_FILE_CONTEXT,
+                    "state": "failure",
+                    "description":
+                        "Missing either a news entry or a trivial flag.",
+                },
+            )
+
+            return web.json_response({
+                "message": "news file was not updated",
+                "labels": list(labels),
+                "files": [
+                    {"path": f.path, "is_added_file": f.is_added_file}
+                    for f in diff
+                ],
+            })
 
 
 def create_app(*, github_token, loop=None):
