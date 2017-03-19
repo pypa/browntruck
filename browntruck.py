@@ -16,6 +16,7 @@ import json
 import re
 
 import aiohttp
+import gidgethub.aiohttp
 import unidiff
 
 from aiohttp import web
@@ -41,11 +42,11 @@ async def news_hook(request):
         return web.json_response({"message": "Skipped due to action"})
 
     async with aiohttp.ClientSession() as session:
+        gh = gidgethub.aiohttp.GitHubAPI(session, "BrownTruck")
+
         # Grab our labels out of GitHub's API
-        issue_url = data["pull_request"]["issue_url"]
-        label_url = f"{issue_url}/labels"
-        async with session.get(label_url) as resp:
-            label_data = await resp.json()
+        issue_data = await gh.getitem(data["pull_request"]["issue_url"])
+        label_data = await gh.getitem(issue_data["labels_url"])
         labels = {l["name"] for l in label_data}
 
         # Grab the diff from GitHub and parse it into a diff object.
@@ -53,8 +54,8 @@ async def news_hook(request):
         async with session.get(diff_url) as resp:
             diff = unidiff.PatchSet(io.StringIO(await resp.text()))
 
-    # Determine if the status check for this PR is passing or not and update the
-    # status check to account for that.
+    # Determine if the status check for this PR is passing or not and update
+    # the status check to account for that.
     if ("trivial" in labels
             or any(f.is_added_file for f in diff
                    if _news_fragment_re.search(f.path))):
