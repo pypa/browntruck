@@ -12,12 +12,14 @@
 
 import asyncio
 import hmac
+import http
 import io
 import json
 import os
 import re
 
 import aiohttp
+import gidgethub
 import gidgethub.aiohttp
 import unidiff
 
@@ -80,8 +82,20 @@ async def news_hook(request):
         )
 
         # Grab our labels out of GitHub's API
-        issue_data = await gh.getitem(data["pull_request"]["issue_url"])
-        label_data = await gh.getitem(issue_data["labels_url"])
+        tries = 5
+        while True:
+            try:
+                issue_data = await gh.getitem(data["pull_request"]["issue_url"])
+                label_data = await gh.getitem(issue_data["labels_url"])
+            except gidgethub.BadRequest as exc:
+                if (isinstance(exc.status_code, http.HTTPStatus.NOT_FOUND)
+                        and tries > 0):
+                    tries -= 1
+                    await asyncio.sleep(1)
+                raise
+            else:
+                break
+
         labels = {l["name"] for l in label_data}
 
         # Grab the diff from GitHub and parse it into a diff object.
