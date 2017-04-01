@@ -15,7 +15,6 @@ import http
 import json
 
 import aiohttp
-import aioredis
 import gidgethub
 import gidgethub.aiohttp
 
@@ -88,13 +87,12 @@ async def _check_pr(gh, pr_url):
 
 
 async def check_prs(app):
-    async with aiohttp.ClientSession() as session, app["redis.pool"].get() as redis_conn:
+    async with aiohttp.ClientSession() as session, app["redis.pool"].get() as redis:
         gh = gidgethub.aiohttp.GitHubAPI(
             session,
             "BrownTruck",
             oauth_token=app["github_token"],
         )
-        redis = aioredis.Redis(redis_conn)
 
         async for pr in gh.getiter(f"/repos/{app['repo']}/pulls?sort=updated"):
             rkey = f"rebase/{pr['number']}"
