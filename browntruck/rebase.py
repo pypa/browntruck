@@ -24,6 +24,8 @@ from browntruck.utils import verify_signature, InvalidSignature
 
 
 async def _check_pr(gh, pr_url):
+    print(f"Checking mergeable status for: {pr_url!r}")
+
     # Determine if our PR is mergeable or not.
     tries = 5
     while True:
