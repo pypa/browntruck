@@ -13,6 +13,9 @@
 import asyncio
 import functools
 import os
+import urllib.parse
+
+import aioredis
 
 from aiocron import crontab
 from aiohttp import web
@@ -21,15 +24,35 @@ from browntruck.news import news_hook
 from browntruck.rebase import check_prs, needs_rebase_hook
 
 
-def create_app(*, github_token, github_payload_key, repo, loop=None):
+async def _create_redis_pool(app):
+    p = urllib.parse.urlparse(app["redis.url"])
+    app["redis.pool"] = await aioredis.create_pool(
+        (p.hostname, p.port),
+        password=p.password,
+    )
+
+
+async def _shutdown_redis_pool(app):
+    app["redis.pool"].close()
+    await app["redis.pool"].wait_closed()
+
+
+def create_app(*, github_token, github_payload_key, repo, redis_url,
+               loop=None):
     app = web.Application(loop=loop)
     app["repo"] = repo
     app["github_token"] = github_token
     app["github_payload_key"] = github_payload_key
+    app["redis.url"] = redis_url
+
+    app.on_startup.append(_create_redis_pool)
+
+    app.on_cleanup.append(_shutdown_redis_pool)
+
     app.router.add_post("/hooks/news", news_hook)
     app.router.add_post("/hooks/rebase", needs_rebase_hook)
 
-    app["cron.rebase.check_prs"] = crontab("0 * * * *",
+    app["cron.rebase.check_prs"] = crontab("*/15 * * * *",
                                            functools.partial(check_prs, app),
                                            loop=loop)
 
@@ -42,6 +65,7 @@ def main(argv):
         github_token=os.environ.get("GITHUB_TOKEN"),
         github_payload_key=os.environ.get("GITHUB_PAYLOAD_KEY"),
         repo=os.environ.get("REPO"),
+        redis_url=os.environ.get("REDIS_URL"),
         loop=loop,
     )
 

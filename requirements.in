@@ -1,6 +1,7 @@
 aiocron
 aiodns
 aiohttp
+aioredis
 cchardet
 gidgethub
 unidiff

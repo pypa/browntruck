@@ -15,6 +15,7 @@ import http
 import json
 
 import aiohttp
+import aioredis
 import gidgethub
 import gidgethub.aiohttp
 
@@ -87,15 +88,21 @@ async def _check_pr(gh, pr_url):
 
 
 async def check_prs(app):
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session, app["redis.pool"].get() as redis_conn:
         gh = gidgethub.aiohttp.GitHubAPI(
             session,
             "BrownTruck",
             oauth_token=app["github_token"],
         )
+        redis = aioredis.Redis(redis_conn)
 
         async for pr in gh.getiter(f"/repos/{app['repo']}/pulls?sort=updated"):
-            await _check_pr(gh, pr["url"])
+            rkey = f"rebase/{pr['number']}"
+            if not (await redis.exists(rkey)):
+                await _check_pr(gh, pr["url"])
+                await redis.setex(rkey, 1 * 24 * 60 * 60, "")
+            else:
+                print(f"Skipping {pr['url']!r}. It has already been checked today.")
 
 
 async def needs_rebase_hook(request):
