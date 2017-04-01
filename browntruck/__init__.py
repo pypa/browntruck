@@ -29,7 +29,7 @@ def create_app(*, github_token, github_payload_key, repo, loop=None):
     app.router.add_post("/hooks/news", news_hook)
     app.router.add_post("/hooks/rebase", needs_rebase_hook)
 
-    app["cron.rebase.check_prs"] = crontab("5 * * * *",
+    app["cron.rebase.check_prs"] = crontab("0 * * * *",
                                            functools.partial(check_prs, app),
                                            loop=loop)
 
