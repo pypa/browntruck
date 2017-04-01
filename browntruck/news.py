@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import asyncio
-import hmac
 import http
 import io
 import json
@@ -24,6 +23,8 @@ import unidiff
 
 from aiohttp import web
 
+from browntruck.utils import verify_signature, InvalidSignature
+
 
 _news_fragment_re = re.compile(
     r"news/[^\./]+\.(removal|feature|bugfix|doc|vendor|trivial)$"
@@ -35,17 +36,6 @@ NEWS_FILE_CONTEXT = "news-file/pr"
 HELP_URL = "https://pip.pypa.io/en/latest/development/#adding-a-news-entry"
 
 
-class InvalidSignature(Exception):
-    pass
-
-
-def _verify_signature(key, signature, body):
-    digest = hmac.new(key.encode("ascii"), msg=body, digestmod="sha1")
-    if not hmac.compare_digest(f"sha1={digest.hexdigest().lower()}",
-                               signature.lower()):
-        raise InvalidSignature
-
-
 async def news_hook(request):
     payload = await request.read()
 
@@ -53,7 +43,7 @@ async def news_hook(request):
     if (request.headers.get("X-Hub-Signature")
             and request.app.get("github_payload_key")):
         try:
-            _verify_signature(
+            verify_signature(
                 request.app["github_payload_key"],
                 request.headers["X-Hub-Signature"],
                 payload,
