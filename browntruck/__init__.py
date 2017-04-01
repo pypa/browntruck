@@ -18,7 +18,7 @@ from aiocron import crontab
 from aiohttp import web
 
 from browntruck.news import news_hook
-from browntruck.rebase import check_prs
+from browntruck.rebase import check_prs, needs_rebase_hook
 
 
 def create_app(*, github_token, github_payload_key, repo, loop=None):
@@ -27,6 +27,7 @@ def create_app(*, github_token, github_payload_key, repo, loop=None):
     app["github_token"] = github_token
     app["github_payload_key"] = github_payload_key
     app.router.add_post("/hooks/news", news_hook)
+    app.router.add_post("/hooks/rebase", needs_rebase_hook)
 
     app["cron.rebase.check_prs"] = crontab("5 * * * *",
                                            functools.partial(check_prs, app),
