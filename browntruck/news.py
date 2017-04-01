@@ -15,7 +15,6 @@ import hmac
 import http
 import io
 import json
-import os
 import re
 
 import aiohttp
@@ -142,23 +141,3 @@ async def news_hook(request):
                     for f in diff
                 ],
             })
-
-
-def create_app(*, github_token, github_payload_key, loop=None):
-    app = web.Application(loop=loop)
-    app["github_token"] = github_token
-    app["github_payload_key"] = github_payload_key
-    app.router.add_post("/hooks/news", news_hook)
-
-    return app
-
-
-def main(argv):
-    loop = asyncio.get_event_loop()
-    app = create_app(
-        github_token=os.environ.get("GITHUB_TOKEN"),
-        github_payload_key=os.environ.get("GITHUB_PAYLOAD_KEY"),
-        loop=loop,
-    )
-
-    return app
