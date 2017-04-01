@@ -95,7 +95,7 @@ async def check_prs(app):
         )
 
         async for pr in gh.getiter(f"/repos/{app['repo']}/pulls?sort=updated"):
-            await _check_pr(pr["url"])
+            await _check_pr(gh, pr["url"])
 
 
 async def needs_rebase_hook(request):
@@ -124,6 +124,12 @@ async def needs_rebase_hook(request):
         return web.json_response({"message": "Skipped due to action"})
 
     # Check our PR
-    await _check_pr(data["pull_request"]["url"])
+    async with aiohttp.ClientSession() as session:
+        gh = gidgethub.aiohttp.GitHubAPI(
+            session,
+            "BrownTruck",
+            oauth_token=request.app["github_token"],
+        )
+        await _check_pr(gh, data["pull_request"]["url"])
 
     return web.Response(status=204)
