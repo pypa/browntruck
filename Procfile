@@ -1,1 +1,1 @@
-web: python -m aiohttp.web -H 0.0.0.0 -P $PORT browntruck:main
+web: twist txghbot -p tcp:$PORT --secret-from-env GITHUB_PAYLOAD_KEY

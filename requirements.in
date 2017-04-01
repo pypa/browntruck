@@ -1,7 +1,5 @@
-aiocron
-aiodns
-aiohttp
-aioredis
-cchardet
+-e git+https://github.com/markrwilliams/txghbot.git@1ccfc5a6e9#egg=txghbot
+
+Twisted
 gidgethub
 unidiff
