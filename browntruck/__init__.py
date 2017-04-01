@@ -11,18 +11,26 @@
 # limitations under the License.
 
 import asyncio
+import functools
 import os
 
+from aiocron import crontab
 from aiohttp import web
 
 from browntruck.news import news_hook
+from browntruck.rebase import check_prs
 
 
-def create_app(*, github_token, github_payload_key, loop=None):
+def create_app(*, github_token, github_payload_key, repo, loop=None):
     app = web.Application(loop=loop)
+    app["repo"] = repo
     app["github_token"] = github_token
     app["github_payload_key"] = github_payload_key
     app.router.add_post("/hooks/news", news_hook)
+
+    app["cron.rebase.check_prs"] = crontab("0 * * * *",
+                                           functools.partial(check_prs, app),
+                                           loop=loop)
 
     return app
 
@@ -32,6 +40,7 @@ def main(argv):
     app = create_app(
         github_token=os.environ.get("GITHUB_TOKEN"),
         github_payload_key=os.environ.get("GITHUB_PAYLOAD_KEY"),
+        repo=os.environ.get("REPO"),
         loop=loop,
     )
 
