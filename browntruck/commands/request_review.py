@@ -70,15 +70,16 @@ class RequestReviewCommand:
         for review in reviews:
             async for attempt in retry():
                 with attempt:
-                    gh.put(prData["url"] + "/reviews{/review_id}/dismissals",
-                           {"review_id": review["id"]},
-                           data={
-                                "message": (
-                                    f"Automated review dismissal at the "
-                                    f"request of "
-                                    f"@{commentData['user']['login']}")},
-                           accept=gidgethub.sansio.accept_format(
-                                version="black-cat-preview"))
+                    await gh.put(
+                        prData["url"] + "/reviews{/review_id}/dismissals",
+                        {"review_id": review["id"]},
+                        data={
+                            "message": (
+                                f"Automated review dismissal at the "
+                                f"request of @{commentData['user']['login']}"),
+                        },
+                        accept=gidgethub.sansio.accept_format(
+                            version="black-cat-preview"))
 
         log.info("Review requested for {commentData[url]}",
                  commentData=commentData)
