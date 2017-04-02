@@ -10,19 +10,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
-from browntruck.config import Configuration
-from browntruck.logger import LoggerWebhook
-from browntruck.merge_conflict import MergeConflictWebhook
-from browntruck.news import NewsFileWebhook
+import attr
 
 
-config = Configuration(
-    oauth_token=os.environ.pop("GITHUB_TOKEN"),
-)
+from txghbot import IWebhook
+from twisted.logger import Logger
+from twisted.plugin import IPlugin
+from zope.interface import implementer
 
 
-logger = LoggerWebhook()
-merge_conflict = MergeConflictWebhook(config=config)
-news = NewsFileWebhook(config=config)
+log = Logger()
+
+
+@implementer(IPlugin, IWebhook)
+@attr.s
+class LoggerWebhook:
+
+    def match(self, eventName, eventData):
+        return True
+
+    def run(self, eventName, eventData, requestID):
+        log.info("Received Event: {eventName} ({requestID})",
+                 eventName=eventName,
+                 eventData=eventData,
+                 requestID=requestID)
