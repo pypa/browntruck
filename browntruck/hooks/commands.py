@@ -96,4 +96,4 @@ class CommandWebhook:
                     dls.append(defer.maybeDeferred(command.run(commentData)))
                     break
 
-        await defer.gatherResults(dls, consumerErrors=True)
+        await defer.gatherResults(dls, consumeErrors=True)
