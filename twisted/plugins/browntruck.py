@@ -13,6 +13,7 @@
 import os
 
 from browntruck.config import Configuration
+from browntruck.merge_conflict import MergeConflictWebhook
 from browntruck.news import NewsFileWebhook
 
 
@@ -21,4 +22,5 @@ config = Configuration(
 )
 
 
+merge_conflict = MergeConflictWebhook(config=config)
 news = NewsFileWebhook(config=config)
