@@ -19,7 +19,7 @@ from twisted.logger import Logger
 from twisted.plugin import IPlugin
 from zope.interface import implementer
 
-from .utils import getGitHubAPI, getGHItem
+from ..utils import getGitHubAPI, getGHItem
 
 
 ACTIONS = {"opened", "reopened", "synchronize"}

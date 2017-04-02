@@ -21,7 +21,7 @@ from twisted.internet import defer
 from twisted.plugin import IPlugin, getPlugins
 from zope.interface import Attribute, Interface, implementer
 
-from .utils import getGitHubAPI, getGHItem
+from ..utils import getGitHubAPI, getGHItem
 
 
 ACTIONS = {"created", "edited"}
