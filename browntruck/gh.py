@@ -10,43 +10,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import weakref
-
+from cachetools import TTLCache
 from twisted.internet import defer
 
 from .utils import Retry
 
-_NOTHING = object()
 
-
-_cache = weakref.WeakKeyDictionary()
-_locks = weakref.WeakKeyDictionary()
-
-
-def _get_cache_and_lock(url, request):
-    # We use a per release ID cache and set of locks.
-    request_cache = _cache.get(request, _NOTHING)
-    request_lock = _locks.get(request, _NOTHING)
-    if request_cache is _NOTHING:
-        _cache[request] = request_cache = weakref.WeakKeyDictionary()
-    if request_lock is _NOTHING:
-        _locks[request] = request_lock = weakref.WeakKeyDictionary()
-
-    # We need a lock specific to this URL now.
-    url_lock = request_lock.get(url, _NOTHING)
-    if url_lock is _NOTHING:
-        request_lock[url] = url_lock = defer.DeferredLock()
-
-    return request_cache, url_lock
+_cache = TTLCache(1000, 5 * 60)
+_locks = TTLCache(1000, 5 * 60)
 
 
 async def getItem(gh, url, request, success_condition=None):
-    request_cache, url_lock = _get_cache_and_lock(url, request)
+    # The first thing we need to do is get the lock that we're going to be
+    # using. We don't want this lock to be for every request, just our current
+    # one, so we'll key this off of the request and the url. Since we're not
+    # running multi threaded code, only one instance of this function can be
+    # accessing this at once. Techincally we could get two locks for the same
+    # (request, url) if our TTLCache evicts this from the cache, but that is
+    # unlikely and even if we do, worst case it just makes extra API calls.
+    lock = _locks.get((request, url))
+    if lock is None:
+        _locks[(request, url)] = lock = defer.DeferredLock()
 
-    await url_lock.acquire()
+    await lock.acquire()
     try:
-        data = request_cache.get(url, _NOTHING)
-        if (data is _NOTHING
+        data = _cache.get((request, url))
+        if (data is None
                 or (success_condition is not None
                     and not success_condition(data))):
             for attempt in Retry():
@@ -55,8 +44,8 @@ async def getItem(gh, url, request, success_condition=None):
                     if (success_condition is not None
                             and not success_condition(data)):
                         attempt.retry()
-            request_cache[url] = data
+            _cache[(request, url)] = data
     finally:
-        url_lock.release()
+        lock.release()
 
     return data
