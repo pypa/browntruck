@@ -28,6 +28,8 @@ class NewsFileWebhook(object):
         return (eventName == "pull_request"
                 and eventData.get("action") in ACTIONS)
 
-    @defer.ensureDeferred
-    async def run(self, eventName, eventData, requestID):
+    def run(self, eventName, eventData, requestID):
+        return defer.ensureDeferred(self.hook(eventName, eventData, requestID))
+
+    async def hook(self, eventName, eventData, requestID):
         gh = getGitHubAPI()
