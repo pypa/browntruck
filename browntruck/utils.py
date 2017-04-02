@@ -19,6 +19,10 @@ def getGitHubAPI(*, oauth_token=None):
     return GitHubAPI("BrownTruck", oauth_token=oauth_token)
 
 
+class ForceRetry(BaseException):
+    pass
+
+
 @attr.s
 class Attempt:
 
@@ -37,8 +41,12 @@ class Attempt:
         # If our current attempt is less than our total number of retries, then
         # we want to suppress the exception, our outer loop will ensure that
         # we get called again.
-        elif issubclass(exc_type, self.catch) and self.number < self.retries:
+        elif (issubclass(exc_type, self.catch + (ForceRetry,))
+                and self.number < self.retries):
             return True
+
+    def retry(self):
+        raise ForceRetry
 
 
 @attr.s
