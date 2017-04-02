@@ -10,15 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import hmac
+from browntruck.news import NewsFileWebhook
 
 
-class InvalidSignature(Exception):
-    pass
-
-
-def verify_signature(key, signature, body):
-    digest = hmac.new(key.encode("ascii"), msg=body, digestmod="sha1")
-    if not hmac.compare_digest(f"sha1={digest.hexdigest().lower()}",
-                               signature.lower()):
-        raise InvalidSignature
+news = NewsFileWebhook()
