@@ -15,8 +15,8 @@ import attr
 from gidgethub.treq import GitHubAPI
 
 
-def getGitHubAPI():
-    return GitHubAPI("BrownTruck")  # , oauth_token=MY_TOKEN)
+def getGitHubAPI(*, oauth_token=None):
+    return GitHubAPI("BrownTruck", oauth_token=oauth_token)
 
 
 @attr.s

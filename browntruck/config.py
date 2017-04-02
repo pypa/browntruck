@@ -10,15 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
-from browntruck.config import Configuration
-from browntruck.news import NewsFileWebhook
+import attr
 
 
-config = Configuration(
-    oauth_token=os.environ.pop("GITHUB_TOKEN"),
-)
+@attr.s
+class Configuration:
 
-
-news = NewsFileWebhook(config=config)
+    oauth_token = attr.ib()

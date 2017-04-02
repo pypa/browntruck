@@ -13,6 +13,7 @@
 import io
 import re
 
+import attr
 import treq
 import unidiff
 
@@ -41,7 +42,10 @@ _news_fragment_re = re.compile(
 
 
 @implementer(IPlugin, IWebhook)
+@attr.s
 class NewsFileWebhook:
+
+    config = attr.ib()
 
     def match(self, eventName, eventData):
         return (eventName == "pull_request"
@@ -53,7 +57,7 @@ class NewsFileWebhook:
     async def hook(self, eventName, eventData, requestID):
         log.info("Processing {eventData[number]}", eventData=eventData)
 
-        gh = getGitHubAPI()
+        gh = getGitHubAPI(oauth_token=self.config.oauth_token)
 
         # First things first, we want to fetch the whole PR data from GitHub
         # instead of relying on what was sent in the Hook. This will ensure
