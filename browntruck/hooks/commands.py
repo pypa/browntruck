@@ -62,7 +62,7 @@ class CommandWebhook:
         return defer.ensureDeferred(self.hook(eventName, eventData, requestID))
 
     async def hook(self, eventName, eventData, requestID):
-        log.info("Processing {eventData[number]}", eventData=eventData)
+        log.info("Processing {eventData[comment][url]}", eventData=eventData)
 
         gh = getGitHubAPI(oauth_token=self.config.oauth_token)
 
