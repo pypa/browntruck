@@ -13,6 +13,7 @@
 import os
 
 from browntruck.config import Configuration
+from browntruck.commands.request_review import RequestReviewCommand
 from browntruck.hooks.commands import CommandWebhook
 from browntruck.hooks.logger import LoggerWebhook
 from browntruck.hooks.merge_conflict import MergeConflictWebhook
@@ -25,7 +26,9 @@ config = Configuration(
 )
 
 
-logger = LoggerWebhook()
-commands = CommandWebhook(config=config)
-merge_conflict = MergeConflictWebhook(config=config)
-news = NewsFileWebhook(config=config)
+hook_logger = LoggerWebhook()
+hook_commands = CommandWebhook(config=config)
+hook_merge_conflict = MergeConflictWebhook(config=config)
+hook_news = NewsFileWebhook(config=config)
+
+command_request_review = RequestReviewCommand()
