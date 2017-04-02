@@ -22,7 +22,7 @@ ACTIONS = {"labeled", "unlabeled", "opened", "reopened", "synchronize"}
 
 
 @implementer(IPlugin, IWebhook)
-class NewsFileWebhook(object):
+class NewsFileWebhook:
 
     def match(self, eventName, eventData):
         return (eventName == "pull_request"
