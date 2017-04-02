@@ -34,7 +34,7 @@ class RequestReviewCommand:
     command_regex = r"^request\s+review$"
 
     def run(self, commentData, requestID):
-        return defer.ensureDeferred(self.hook(commentData))
+        return defer.ensureDeferred(self.hook(commentData, requestID))
 
     async def hook(self, commentData, requestID):
         log.info("Processing review request for {commentData[url]}",
