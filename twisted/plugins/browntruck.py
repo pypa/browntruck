@@ -31,4 +31,4 @@ hook_commands = CommandWebhook(config=config)
 hook_merge_conflict = MergeConflictWebhook(config=config)
 hook_news = NewsFileWebhook(config=config)
 
-command_request_review = RequestReviewCommand()
+command_request_review = RequestReviewCommand(config=config)

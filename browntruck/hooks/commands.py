@@ -93,7 +93,8 @@ class CommandWebhook:
             # and add it to our list of deferreds to wait until the end.
             for command_regex, command in self.commands.items():
                 if command_regex.search(line.strip()):
-                    dls.append(defer.maybeDeferred(command.run(commentData)))
+                    dls.append(defer.maybeDeferred(
+                        command.run(commentData, requestID)))
                     break
 
         await defer.DeferredList(dls, consumeErrors=True)
