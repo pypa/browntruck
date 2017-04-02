@@ -11,16 +11,23 @@
 # limitations under the License.
 
 from txghbot import IWebhook
+from twisted import defer
 from twisted.plugin import IPlugin
 from zope.interface import implementer
+
+from .utils import getGitHubAPI
+
+
+ACTIONS = {"labeled", "unlabeled", "opened", "reopened", "synchronize"}
 
 
 @implementer(IPlugin, IWebhook)
 class NewsFileWebhook(object):
 
     def match(self, eventName, eventData):
-        print((eventName, eventData))
-        return False
+        return (eventName == "pull_request"
+                and eventData.get("action") in ACTIONS)
 
+    @defer.ensureDeferred
     def run(self, eventName, eventData, requestID):
-        raise NotImplementedError
+        gh = getGitHubAPI()
