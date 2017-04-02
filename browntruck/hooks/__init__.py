@@ -9,20 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import os
-
-from browntruck.config import Configuration
-from browntruck.hooks.logger import LoggerWebhook
-from browntruck.hooks.merge_conflict import MergeConflictWebhook
-from browntruck.hooks.news import NewsFileWebhook
-
-
-config = Configuration(
-    oauth_token=os.environ.pop("GITHUB_TOKEN"),
-)
-
-
-logger = LoggerWebhook()
-merge_conflict = MergeConflictWebhook(config=config)
-news = NewsFileWebhook(config=config)
