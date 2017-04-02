@@ -72,7 +72,7 @@ class RequestReviewCommand:
                 with attempt:
                     await gh.put(
                         prData["url"] + "/reviews{/review_id}/dismissals",
-                        {"review_id": review["id"]},
+                        {"review_id": str(review["id"])},
                         data={
                             "message": (
                                 f"Automated review dismissal at the "
