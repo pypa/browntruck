@@ -67,7 +67,7 @@ class RequestReviewCommand:
 
         # Actually go through and dismiss all of our pending reviews.
         # TODO: When this API is no longer in beta, stop doing this manually.
-        for review in reviews:
+        for review in filter(lambda i: i["state"] != "DISMISSED", reviews):
             async for attempt in retry():
                 with attempt:
                     await gh.put(
