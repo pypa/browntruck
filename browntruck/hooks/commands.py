@@ -48,7 +48,7 @@ class CommandWebhook:
 
     def __attrs_post_init__(self):
         self.commands = collections.OrderedDict(
-            (re.compile(p.command_regex), p) for p in getPlugins())
+            (re.compile(p.command_regex), p) for p in getPlugins(ICommand))
 
     def match(self, eventName, eventData):
         return (eventName == "issue_comment"

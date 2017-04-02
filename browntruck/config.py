@@ -17,3 +17,4 @@ import attr
 class Configuration:
 
     oauth_token = attr.ib()
+    gh_username = attr.ib()
