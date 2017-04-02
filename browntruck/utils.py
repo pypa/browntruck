@@ -14,7 +14,7 @@ import attr
 
 from cachetools import TTLCache
 from gidgethub.treq import GitHubAPI
-from twisted.internet import defer
+from twisted.internet import defer, task, reactor
 
 
 def getGitHubAPI(*, oauth_token=None):
@@ -39,7 +39,7 @@ async def getGHItem(gh, url, request, success_condition=None):
         if (data is None
                 or (success_condition is not None
                     and not success_condition(data))):
-            for attempt in Retry():
+            async for attempt in retry():
                 with attempt:
                     data = await gh.getitem(url)
                     if (success_condition is not None
@@ -86,20 +86,18 @@ class Attempt:
         raise ForceRetry
 
 
-@attr.s
-class Retry:
+async def retry(*, catch=(Exception,), retries=5):
+    # We want to effectively run forever until our latest attempt tells us to
+    # stop. When we reach our maximum number of retries our Attempt class will
+    # let the exception propagate instead of silencing it, so that will break
+    # us out of the loop.
+    number, attempt, first = 0, None, True
+    while attempt is None or not attempt.successful:
+        if first:
+            first = False
+        else:
+            await task.deferLater(reactor, 1, lambda: None)
 
-    catch = attr.ib(default=(Exception,))
-    retries = attr.ib(default=5)
-
-    def __iter__(self):
-        # We want to effectively run forever until our latest attempt tells us
-        # to stop. When we reach our maximum number of retries our Attempt
-        # class will let the exception propagate instead of silencing it, so
-        # that will break us out of the loop.
-        number, attempt = 0, None
-        while attempt is None or not attempt.successful:
-            number += 1
-            attempt = Attempt(number=number, retries=self.retries,
-                              catch=tuple(self.catch))
-            yield attempt
+        number += 1
+        attempt = Attempt(number=number, retries=retries, catch=tuple(catch))
+        yield attempt
