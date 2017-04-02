@@ -24,6 +24,8 @@ from .utils import getGitHubAPI, Retry
 
 ACTIONS = {"opened", "reopened", "synchronize"}
 
+LABEL = "needs rebase or merge"
+
 MESSAGE = """
 Hello!
 
@@ -82,22 +84,19 @@ class MergeConflictWebhook:
 
         # Actually determine if our PR is mergeable, and if so properly add
         # the labels and comments that we require.
-        if prData["mergeable"] and "needs merged or rebased" in labels:
+        if prData["mergeable"] and LABEL in labels:
             # The PR is now mergeable and no longer requires a merge or a
             # rebase, so we'll go ahead and remove the label.
-            await gh.delete(issueData["labels_url"],
-                            {"name": "needs merged or rebased"})
+            await gh.delete(issueData["labels_url"], {"name": LABEL})
 
             log.info("{prData[number]}: {status}",
                      prData=prData,
                      status="Free of merge conflicts")
-        elif (not prData["mergeable"]
-                and "needs merged or rebased" not in labels):
+        elif not prData["mergeable"] and LABEL not in labels:
             # The PR is not mergeable, so we'll mark it and add our comment
             # to it explaining what needs to be done.
             await gh.post(issueData["comments_url"], data={"body": MESSAGE})
-            await gh.post(issueData["labels_url"],
-                          data=["needs merged or rebased"])
+            await gh.post(issueData["labels_url"], data=[LABEL])
 
             log.info("{prData[number]}: {status}",
                      prData=prData,
