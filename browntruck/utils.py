@@ -12,11 +12,48 @@
 
 import attr
 
+from cachetools import TTLCache
 from gidgethub.treq import GitHubAPI
+from twisted.internet import defer
 
 
 def getGitHubAPI(*, oauth_token=None):
     return GitHubAPI("BrownTruck", oauth_token=oauth_token)
+
+
+async def getGHItem(gh, url, request, success_condition=None):
+    # The first thing we need to do is get the lock that we're going to be
+    # using. We don't want this lock to be for every request, just our current
+    # one, so we'll key this off of the request and the url. Since we're not
+    # running multi threaded code, only one instance of this function can be
+    # accessing this at once. Techincally we could get two locks for the same
+    # (request, url) if our TTLCache evicts this from the cache, but that is
+    # unlikely and even if we do, worst case it just makes extra API calls.
+    lock = getGHItem.locks.get((request, url))
+    if lock is None:
+        getGHItem.locks[(request, url)] = lock = defer.DeferredLock()
+
+    await lock.acquire()
+    try:
+        data = getGHItem.cache.get((request, url))
+        if (data is None
+                or (success_condition is not None
+                    and not success_condition(data))):
+            for attempt in Retry():
+                with attempt:
+                    data = await gh.getitem(url)
+                    if (success_condition is not None
+                            and not success_condition(data)):
+                        attempt.retry()
+            getGHItem.cache[(request, url)] = data
+    finally:
+        lock.release()
+
+    return data
+
+
+getGHItem.cache = TTLCache(1000, 5 * 60)
+getGHItem.locks = TTLCache(1000, 5 * 60)
 
 
 class ForceRetry(BaseException):
