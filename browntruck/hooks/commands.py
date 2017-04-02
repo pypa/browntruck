@@ -73,6 +73,20 @@ class CommandWebhook:
         # sensitive.
         dls = []
         for line in commentData["body"].splitlines():
+            line = line.strip()
+
+            # All of our commands have to be addressed to the bot, this serves
+            # as a sort of watch word to avoid mistaken commands.
+            if (not line.lower().startswith(
+                                    "@" + self.config.gh_username.lower())):
+                continue
+            else:
+                # We want to get rid of the bot name from out line, as well as
+                # restrip any left over whitespace.
+                line = line[len(self.config.gh_username) + 1].strip()
+
+            # Take our line, and see if it matches any commands, if so run it
+            # and add it to our list of deferreds to wait until the end.
             for command_regex, command in self.commands.values():
                 if command_regex.search(line.strip()):
                     dls.append(defer.maybeDeferred(command.run(commentData)))

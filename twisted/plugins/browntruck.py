@@ -21,6 +21,7 @@ from browntruck.hooks.news import NewsFileWebhook
 
 config = Configuration(
     oauth_token=os.environ.pop("GITHUB_TOKEN"),
+    gh_username=os.environ.pop("GITHUB_USERNAME"),
 )
 
 
