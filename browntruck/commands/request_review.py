@@ -61,9 +61,8 @@ class RequestReviewCommand:
         async for attempt in retry():
             with attempt:
                 reviews = []
-                for review in gh.getiter(prData["url"] + "/reviews",
-                                         accept=gidgethub.sansio.accept_format(
-                                            version="black-cat-preview")):
+                async for review in gh.getiter(prData["url"] + "/reviews",
+                                               accept=gidgethub.sansio.accept_format(version="black-cat-preview")):  # noqa
                     reviews.append(review)
 
         # Actually go through and dismiss all of our pending reviews.
