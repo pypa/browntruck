@@ -40,7 +40,7 @@ def _get_cache_and_lock(url, request):
     return request_cache, url_lock
 
 
-async def getItem(gh, url, request):
+async def getItem(gh, url, request, success_condition=None):
     request_cache, url_lock = _get_cache_and_lock(url, request)
 
     await url_lock.acquire()
@@ -49,7 +49,11 @@ async def getItem(gh, url, request):
         if data is _NOTHING:
             for attempt in Retry():
                 with attempt:
-                    request_cache[url] = data = await gh.getitem(url)
+                    data = await gh.getitem(url)
+                    if (success_condition is not None
+                            and not success_condition(data)):
+                        attempt.retry()
+            request_cache[url] = data
     finally:
         url_lock.release()
 
