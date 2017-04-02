@@ -73,6 +73,11 @@ class RequestReviewCommand:
                 with attempt:
                     gh.put(prData["url"] + "/reviews{/review_id}/dismissals",
                            {"review_id": review["id"]},
+                           data={
+                                "message": (
+                                    f"Automated review dismissal at the "
+                                    f"request of "
+                                    f"@{commentData['user']['login']}")},
                            accept=gidgethub.sansio.accept_format(
                                 version="black-cat-preview"))
 
