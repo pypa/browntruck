@@ -2,15 +2,26 @@
 
 -e git+https://github.com/markrwilliams/txghbot.git@1ccfc5a6e9#egg=txghbot
 appdirs==1.4.3
+asn1crypto==0.22.0
 attrs==16.3.0
 automat==0.5.0
+cffi==1.10.0
 constantly==15.1.0
+cryptography==1.8.1
 gidgethub==2.0.0
+idna==2.5
 incremental==16.10.1
 packaging==16.8
+pyasn1-modules==0.0.8
+pyasn1==0.2.3
+pycparser==2.17
+pyopenssl==16.2.0
 pyparsing==2.2.0
+requests==2.13.0
+service-identity==16.0.0
 six==1.10.0
-twisted==17.1.0
+treq==17.3.1
+twisted[tls]==17.1.0
 unidiff==0.5.2+new.files
 uritemplate==3.0.0
 zope.interface==4.3.3
