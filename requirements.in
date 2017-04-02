@@ -1,5 +1,6 @@
 -e git+https://github.com/markrwilliams/txghbot.git@1ccfc5a6e9#egg=txghbot
 
+attrs
 gidgethub
 treq
 Twisted
