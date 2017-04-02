@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from txghbot import IWebhook
-from twisted import defer
+from twisted.internet import defer
 from twisted.plugin import IPlugin
 from zope.interface import implementer
 
