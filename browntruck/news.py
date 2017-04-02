@@ -11,10 +11,11 @@
 # limitations under the License.
 
 from txghbot import IWebhook
+from twisted.plugin import IPlugin
 from zope.interface import implementer
 
 
-@implementer(IWebhook)
+@implementer(IPlugin, IWebhook)
 class NewsFileWebhook(object):
 
     def match(self, eventName, eventData):
