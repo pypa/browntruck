@@ -62,12 +62,12 @@ async def _check_pr(gh, pr_url):
             break
     labels = {l["name"] for l in label_data}
 
-    if mergeable and "needs merged or rebased" in labels:
+    if mergeable and "needs rebase or merge" in labels:
         # The PR is now mergeable and no longer requires a merge or a
         # rebase, so we'll go ahead and remove the label.
         await gh.delete(issue_data["labels_url"],
-                        {"name": "needs merged or rebased"})
-    elif not mergeable and "needs merged or rebased" not in labels:
+                        {"name": "needs rebase or merge"})
+    elif not mergeable and "needs rebase or merge" not in labels:
         # The PR is not mergeable, so we'll mark it and add our comment
         # to it explaining what needs to be done.
         comment = (
@@ -83,7 +83,7 @@ async def _check_pr(gh, pr_url):
             "body": comment,
         })
         await gh.post(issue_data["labels_url"],
-                      data=["needs merged or rebased"])
+                      data=["needs rebase or merge"])
 
 
 async def check_prs(app):
