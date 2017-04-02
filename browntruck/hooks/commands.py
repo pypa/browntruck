@@ -46,9 +46,13 @@ class CommandWebhook:
 
     config = attr.ib()
 
-    def __attrs_post_init__(self):
-        self.commands = collections.OrderedDict(
-            (re.compile(p.command_regex), p) for p in getPlugins(ICommand))
+    @property
+    def commands(self):
+        if not hasattr(self, "_commands"):
+            self._commands = collections.OrderedDict(
+                (re.compile(p.command_regex), p) for p in getPlugins(ICommand))
+
+        return self._commands
 
     def match(self, eventName, eventData):
         return (eventName == "issue_comment"
