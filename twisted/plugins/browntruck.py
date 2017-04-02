@@ -13,6 +13,7 @@
 import os
 
 from browntruck.config import Configuration
+from browntruck.hooks.commands import CommandWebhook
 from browntruck.hooks.logger import LoggerWebhook
 from browntruck.hooks.merge_conflict import MergeConflictWebhook
 from browntruck.hooks.news import NewsFileWebhook
@@ -24,5 +25,6 @@ config = Configuration(
 
 
 logger = LoggerWebhook()
+commands = CommandWebhook(config=config)
 merge_conflict = MergeConflictWebhook(config=config)
 news = NewsFileWebhook(config=config)
