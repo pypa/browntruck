@@ -23,7 +23,7 @@ def getGitHubAPI(*, oauth_token=None):
 class Attempt:
 
     number = attr.ib()
-    retried = attr.ib()
+    retries = attr.ib()
     catch = attr.ib()
     successful = attr.ib(default=None, init=False)
 
