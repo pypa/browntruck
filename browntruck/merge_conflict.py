@@ -19,6 +19,7 @@ from twisted.logger import Logger
 from twisted.plugin import IPlugin
 from zope.interface import implementer
 
+from . import gh
 from .utils import getGitHubAPI, Retry
 
 
@@ -55,31 +56,20 @@ class MergeConflictWebhook:
     async def hook(self, eventName, eventData, requestID):
         log.info("Processing {eventData[number]}", eventData=eventData)
 
-        gh = getGitHubAPI(oauth_token=self.config.oauth_token)
+        gh_api = getGitHubAPI(oauth_token=self.config.oauth_token)
 
-        # First things first, we want to fetch the whole PR data from GitHub
-        # instead of relying on what was sent in the Hook. This will ensure
-        # that we have the latest data as well as be more secure. We will also
-        # continue to attempt to fetch the data until the mergeable attribute
-        # has a value.
-        for attempt in Retry():
-            with attempt:
-                prData = await gh.getitem(eventData["pull_request"]["url"])
-                if prData["mergeable"] is None:
-                    attempt.retry()
+        # Fetch all of the related data from GitHub, we do this instead of
+        # trusting the event data from the hook to help both with stale hooks
+        # as well as better security.
+        prData = await gh.getItem(gh_api,
+                                  eventData["pull_request"]["url"], requestID,
+                                  success_condition=lambda d: (
+                                    d["mergeable"] is not None))
+        issueData = await gh.getItem(gh_api, prData["issue_url"], requestID)
+        labelData = await gh.getItem(gh_api,
+                                     issueData["labels_url"], requestID)
 
-        # Next, we want to fetch the issue data, we need this seperately from
-        # the PR data because not everything is contained within the PR since
-        # GitHub models PRs as issues with attached code.
-        for attempt in Retry():
-            with attempt:
-                issueData = await gh.getitem(prData["issue_url"])
-
-        # We also need our label data since a PR can be marked as trivial which
-        # skips the requirement for a news file.
-        for attempt in Retry():
-            with attempt:
-                labelData = await gh.getitem(issueData["labels_url"])
+        # We really only care about just a list of label names.
         labels = {l["name"] for l in labelData}
 
         # Actually determine if our PR is mergeable, and if so properly add

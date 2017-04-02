@@ -46,7 +46,9 @@ async def getItem(gh, url, request, success_condition=None):
     await url_lock.acquire()
     try:
         data = request_cache.get(url, _NOTHING)
-        if data is _NOTHING:
+        if (data is _NOTHING
+                or (success_condition is not None
+                    and not success_condition(data))):
             for attempt in Retry():
                 with attempt:
                     data = await gh.getitem(url)
