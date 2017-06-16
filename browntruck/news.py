@@ -19,11 +19,10 @@ import re
 import aiohttp
 import gidgethub
 import gidgethub.aiohttp
+import gidgethub.sansio
 import unidiff
 
 from aiohttp import web
-
-from browntruck.utils import verify_signature, InvalidSignature
 
 
 _news_fragment_re = re.compile(
@@ -38,23 +37,16 @@ HELP_URL = "https://pip.pypa.io/en/latest/development/#adding-a-news-entry"
 
 async def news_hook(request):
     payload = await request.read()
-
-    # Verify the payload against the signature
-    if (request.headers.get("X-Hub-Signature")
-            and request.app.get("github_payload_key")):
-        try:
-            verify_signature(
-                request.app["github_payload_key"],
-                request.headers["X-Hub-Signature"],
-                payload,
-            )
-        except InvalidSignature:
+    try:
+        event = gidgethub.sansio.Event.from_http(request.headers, payload,
+                                                 secret=request.app.get("github_payload_key"))
+    except gidgethub.ValidationFailure:
             return web.json_response(
                 {"message": "Invalid signature"},
                 status=400,
             )
 
-    data = json.loads(payload.decode(request.charset or "utf8"))
+    data = event.data
 
     # We only care about a few different kinds of actions, the rest of them
     # are not useful to us, so we'll no-op out quickly if it is one of them.
