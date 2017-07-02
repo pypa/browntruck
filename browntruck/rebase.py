@@ -22,6 +22,8 @@ from aiohttp import web
 
 from browntruck.utils import verify_signature, InvalidSignature
 
+LABEL_NAME = "needs rebase or merge"
+
 
 async def _check_pr(gh, pr_url):
     print(f"Checking mergeable status for: {pr_url!r}")
@@ -62,12 +64,11 @@ async def _check_pr(gh, pr_url):
             break
     labels = {l["name"] for l in label_data}
 
-    if mergeable and "needs rebase or merge" in labels:
+    if mergeable and LABEL_NAME in labels:
         # The PR is now mergeable and no longer requires a merge or a
         # rebase, so we'll go ahead and remove the label.
-        await gh.delete(issue_data["labels_url"],
-                        {"name": "needs rebase or merge"})
-    elif not mergeable and "needs rebase or merge" not in labels:
+        await gh.delete(issue_data["labels_url"], {"name": LABEL_NAME})
+    elif not mergeable and LABEL_NAME not in labels:
         # The PR is not mergeable, so we'll mark it and add our comment
         # to it explaining what needs to be done.
         comment = (
@@ -82,8 +83,7 @@ async def _check_pr(gh, pr_url):
         await gh.post(issue_data["comments_url"], data={
             "body": comment,
         })
-        await gh.post(issue_data["labels_url"],
-                      data=["needs rebase or merge"])
+        await gh.post(issue_data["labels_url"], data=[LABEL_NAME])
 
 
 async def check_prs(app):
