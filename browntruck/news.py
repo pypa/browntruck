@@ -95,7 +95,7 @@ async def news_hook(request):
         # Determine if the status check for this PR is passing or not and
         # update the status check to account for that.
         if ("trivial" in labels
-                or any(f.is_added_file for f in diff
+                or any(not f.is_removed_file for f in diff
                        if _news_fragment_re.search(f.path))):
             await gh.post(
                 data["pull_request"]["statuses_url"],
