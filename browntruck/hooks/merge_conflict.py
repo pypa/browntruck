@@ -24,7 +24,7 @@ from ..utils import getGitHubAPI, getGHItem
 
 ACTIONS = {"opened", "reopened", "synchronize"}
 
-LABEL = "needs rebase or merge"
+LABEL = "auto - needs rebase or merge"
 
 MESSAGE = """
 Hello!
