@@ -76,7 +76,7 @@ async def _check_pr(gh, pr_url):
             "request is not currently able to be merged. If you are "
             "able to either merge the ``master`` branch into this "
             "pull request or rebase this pull request against "
-            "``master`` then it will eligible for code review and "
+            "``master`` then it will be eligible for code review and "
             "hopefully merging!"
         )
         await gh.post(issue_data["comments_url"], data={
