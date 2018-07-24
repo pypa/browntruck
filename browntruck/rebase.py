@@ -22,7 +22,7 @@ from aiohttp import web
 
 from browntruck.utils import verify_signature, InvalidSignature
 
-LABEL_NAME = "auto - needs rebase or merge"
+LABEL_NAME = "needs rebase or merge"
 
 
 async def _check_pr(gh, pr_url):
