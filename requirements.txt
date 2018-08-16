@@ -1,31 +1,28 @@
--f https://github.com/dstufft/python-unidiff/archive/git-new-files.zip#egg=unidiff-0.5.2+new.files
-
--e git+https://github.com/markrwilliams/txghbot.git@1ccfc5a6e9#egg=txghbot
-appdirs==1.4.3
-asn1crypto==0.22.0
-attrs==16.3.0
-automat==0.5.0
-cachetools==2.0.0
-cffi==1.10.0
+asn1crypto==0.24.0
+attrs==18.1.0
+Automat==0.7.0
+cachetools==2.1.0
+certifi==2018.8.13
+cffi==1.11.5
+chardet==3.0.4
 constantly==15.1.0
-cryptography==1.8.1
-gidgethub==2.0.0
-idna==2.5
-incremental==16.10.1
-packaging==16.8
-pyasn1-modules==0.0.8
-pyasn1==0.2.3
-pycparser==2.17
-pyopenssl==16.2.0
-pyparsing==2.2.0
-requests==2.13.0
-service-identity==16.0.0
-six==1.10.0
-treq==17.3.1
-twisted[tls]==17.1.0
-unidiff==0.5.2+new.files
+cryptography==2.3.1
+gidgethub==2.5.0.post1
+hyperlink==18.0.0
+idna==2.7
+incremental==17.5.0
+pyasn1==0.4.4
+pyasn1-modules==0.2.2
+pycparser==2.18
+PyHamcrest==1.9.0
+pyOpenSSL==18.0.0
+requests==2.19.1
+service-identity==17.0.0
+six==1.11.0
+treq==18.6.0
+Twisted==18.7.0
+-e git+https://github.com/markrwilliams/txghbot.git@1ccfc5a6e96b9769a21d50ec787b12ef31001d2b#egg=txghbot
+unidiff==0.5.5
 uritemplate==3.0.0
-zope.interface==4.3.3
-
-# The following packages are considered to be unsafe in a requirements file:
-setuptools==34.3.3
+urllib3==1.23
+zope.interface==4.5.0
