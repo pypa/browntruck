@@ -33,7 +33,7 @@ _news_fragment_re = re.compile(
 
 NEWS_FILE_CONTEXT = "news-file/pr"
 
-HELP_URL = "https://pip.pypa.io/en/latest/development/#adding-a-news-entry"
+HELP_URL = "https://pip.pypa.io/en/latest/development/contributing/#news-entries"
 
 
 async def news_hook(request):
