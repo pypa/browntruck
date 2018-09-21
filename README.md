@@ -1,4 +1,4 @@
-# Browntruck (soon, pypa-bot)
+https://github.com/pypa-bot
 
 The bot to help PyPA's working processes.
 
