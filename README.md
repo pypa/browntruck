@@ -1,4 +1,4 @@
-# Browntruck (soon, pypa-bot)
+# Browntruck (soon pypa-bot)
 
 The bot to help PyPA's working processes.
 
@@ -8,4 +8,4 @@ Currently, this handles:
 - Commenting and labelling PRs that can't be merged due to merge conflicts
 - Dismissing reviews from maintainers based on request from PR authors
 
-NOTE: We're currently midway through porting the functionality to Twisted. This can be seen on the [twisted](https://github.com/pypa/browntruck/tree/twisted) branch. Some functionality is handled by that branch currently.
+NOTE: We're currently midway through porting the functionality to Twisted. This can be seen on the [twisted](https://github.com/pypa/browntruck/tree/twisted) branch. Some functionality (checking news entries, unlabelling merge conflict PRs) is handled by that branch currently.
