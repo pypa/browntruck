@@ -20,6 +20,7 @@ import aioredis
 from aiocron import crontab
 from aiohttp import web
 
+from browntruck.integration_installation import integration_installation_hook
 from browntruck.news import news_hook
 from browntruck.rebase import check_prs, needs_rebase_hook
 
@@ -55,6 +56,11 @@ def create_app(*, github_token, github_payload_key,
     app.on_startup.append(_create_redis_pool)
 
     app.on_cleanup.append(_shutdown_redis_pool)
+
+    app.router.add_post(
+        "/hooks/integration_installation",
+        integration_installation_hook,
+    )
 
     app.router.add_post("/hooks/news", news_hook)
     app.router.add_post("/hooks/rebase", needs_rebase_hook)
