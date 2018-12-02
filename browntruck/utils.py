@@ -13,6 +13,8 @@
 import hmac
 import time
 
+import aiohttp
+import gidgethub.aiohttp
 import jwt
 
 class InvalidSignature(Exception):
@@ -39,3 +41,19 @@ def get_gh_jwt(app_id, private_key):
         key=private_key,
         algorithm="RS256"
     ).decode('utf-8')
+
+
+async def get_install_token(*, app_id, private_key, install_id, payload):
+    gh_jwt = get_gh_jwt(app_id, private_key)
+    async with aiohttp.ClientSession() as session:
+        gh = gidgethub.aiohttp.GitHubAPI(
+            session,
+            "BrownTruck-Bot"  # TODO: add "/1.0" as in version
+            " (+https://github.com/pypa/browntruck)",
+            jwt=gh_jwt,
+        )
+        return (
+            await gh.getitem(
+                payload["installation"]["access_tokens_url"]
+            )["token"]
+        )
