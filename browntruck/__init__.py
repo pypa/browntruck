@@ -37,12 +37,19 @@ async def _shutdown_redis_pool(app):
     await app["redis.pool"].wait_closed()
 
 
-def create_app(*, github_token, github_payload_key, repo, redis_url,
+def create_app(*, github_token, github_payload_key,
+               github_app_id,
+               github_app_private_key,
+               # github_app_webhook_secret,  # seems == github_payload_key
+               repo, redis_url,
                loop=None):
     app = web.Application(loop=loop)
     app["repo"] = repo
     app["github_token"] = github_token
     app["github_payload_key"] = github_payload_key
+    app["github_app_id"] = github_app_id
+    app["github_app_private_key"] = github_app_private_key
+    # app["github_app_webhook_secret"] = github_app_webhook_secret
     app["redis.url"] = redis_url
 
     app.on_startup.append(_create_redis_pool)
@@ -64,6 +71,11 @@ def main(argv):
     app = create_app(
         github_token=os.environ.get("GITHUB_TOKEN"),
         github_payload_key=os.environ.get("GITHUB_PAYLOAD_KEY"),
+        # GitHub App integration credentials:
+        github_app_id=os.environ.get("GITHUB_APP_IDENTIFIER"),
+        github_app_private_key=os.environ.get("GITHUB_PRIVATE_KEY"),
+        # github_app_webhook_secret=os.environ.get("GITHUB_WEBHOOK_SECRET"),  # seems to be the same as github_payload_key
+        # GitHub App integration credentials end
         repo=os.environ.get("REPO"),
         redis_url=os.environ.get("REDIS_URL"),
         loop=loop,
