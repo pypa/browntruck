@@ -10,4 +10,5 @@ workflow "On PR" {
 
 action "Chronographer" {
   uses = "sanitizers/chronographer-github-app@master"
+  secrets = ["GITHUB_TOKEN"]
 }
