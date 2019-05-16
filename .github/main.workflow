@@ -9,6 +9,6 @@ workflow "On PR" {
 }
 
 action "Chronographer" {
-  uses = "sanitizers/chronographer-github-app@master"
+  uses = "sanitizers/chronographer-github-app@367543e"
   secrets = ["GITHUB_TOKEN"]
 }
