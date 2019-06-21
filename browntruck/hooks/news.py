@@ -28,7 +28,7 @@ from ..utils import getGitHubAPI, getGHItem
 
 NEWS_FILE_CONTEXT = "news-file/pr"
 
-HELP_URL = "https://pip.pypa.io/en/latest/development/#adding-a-news-entry"
+HELP_URL = "https://pip.pypa.io/en/latest/development/contributing/#news-entries"
 
 ACTIONS = {"labeled", "unlabeled", "opened", "reopened", "synchronize"}
 
