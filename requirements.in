@@ -1,8 +1,8 @@
--e git+https://github.com/markrwilliams/txghbot.git@1ccfc5a6e9#egg=txghbot
+-e git+https://github.com/markrwilliams/txghbot.git@1ccfc5a6e96b9769a21d50ec787b12ef31001d2b#egg=txghbot
 
 attrs
 cachetools
 gidgethub
 treq
-Twisted
+Twisted[tls]
 unidiff
