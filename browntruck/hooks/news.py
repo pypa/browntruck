@@ -37,7 +37,7 @@ log = Logger()
 
 
 _news_fragment_re = re.compile(
-    r"news/[^\./]+\.(process|removal|feature|bugfix|doc|vendor|trivial)(\.rst)?$"
+    r"news/[^\./]+\.(process|removal|feature|bugfix|doc|vendor|trivial)\.rst$"
 )
 
 
