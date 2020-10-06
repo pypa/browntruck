@@ -17,4 +17,6 @@ import attr
 class Configuration:
 
     oauth_token = attr.ib()
+    port = attr.ib()
     gh_username = attr.ib()
+    gh_payload_key = attr.ib()
