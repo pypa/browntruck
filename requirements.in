@@ -2,7 +2,7 @@
 
 attrs
 cachetools
-gidgethub
+gidgethub<4.0.0
 treq
 Twisted[tls]
 unidiff

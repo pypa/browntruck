@@ -28,10 +28,9 @@ constantly==15.1.0
     # via twisted
 cryptography==37.0.4
     # via
-    #   pyjwt
     #   pyopenssl
     #   service-identity
-gidgethub==5.2.0
+gidgethub==3.3.0
     # via -r requirements.in
 hyperlink==21.0.0
     # via
@@ -55,8 +54,6 @@ pyasn1-modules==0.2.8
     # via service-identity
 pycparser==2.21
     # via cffi
-pyjwt[crypto]==2.4.0
-    # via gidgethub
 pyopenssl==22.0.0
     # via twisted
 requests==2.28.1
