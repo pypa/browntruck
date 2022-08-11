@@ -9,26 +9,45 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import os
 
 from browntruck.config import Configuration
-from browntruck.commands.request_review import RequestReviewCommand
 from browntruck.hooks.commands import CommandWebhook
 from browntruck.hooks.logger import LoggerWebhook
 from browntruck.hooks.merge_conflict import MergeConflictWebhook
 from browntruck.hooks.news import NewsFileWebhook
 
+from twisted.web import server
+from twisted.application import service, strports, internet
+
+import txghbot
+
 
 config = Configuration(
     oauth_token=os.environ.pop("GITHUB_TOKEN"),
+    port=os.environ.pop("PORT"),
     gh_username=os.environ.pop("GITHUB_USERNAME"),
+    gh_payload_key=os.environ.pop("GITHUB_PAYLOAD_KEY"),
 )
 
+hooks = [
+    LoggerWebhook(),
+    CommandWebhook(config=config),
+    MergeConflictWebhook(config=config),
+    NewsFileWebhook(config=config),
+]
 
-hook_logger = LoggerWebhook()
-hook_commands = CommandWebhook(config=config)
-hook_merge_conflict = MergeConflictWebhook(config=config)
-hook_news = NewsFileWebhook(config=config)
 
-command_request_review = RequestReviewCommand(config=config)
+application = service.Application("Brown Truck")
+
+site = server.Site(
+    txghbot.makeWebhookDispatchingResource(
+        config.gh_payload_key,
+        hooks,
+    ),
+)
+web_service = strports.service("tcp:" + config.port, site)
+web_service.setServiceParent(application)
+
+timer_service = internet.TimerService(1.0, print, "tick")
+timer_service.setServiceParent(application)
